@@ -5,6 +5,24 @@ import uuid
 import pytest
 from pytest_describe import behaves_like
 
+# How these tests are written
+
+# pytest_describe: https://github.com/pytest-dev/pytest-describe#why-bother
+# pytest fixtures: https://docs.pytest.org/en/latest/explanation/fixtures.html
+
+# The short version:
+#    every function is a unit test unless:
+#       * it's top-level
+#       * it starts with "describe_"
+#       * it's decorated with pytest.fixture
+#
+# Functions decorated with pytest.fixture are a way of doing test setup.
+# They can be named as arguments to unit tests. When the unit test is run,
+# the named fixtures will be run first, and their return values will be
+# passed into the unit test. Fixtures can also use other fixtures, and will
+# share results, calling each fixture only once per unit test invocation.
+
+
 from src.server import Role, Server
 
 
