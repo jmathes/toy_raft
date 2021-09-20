@@ -55,6 +55,12 @@ def follower(mocker, peers, rpc, now):
     )
 
 def a_server():
+    # Tests defined under a_server are for behaviors common
+    # across all server roles. Using behaves_like(), they will
+    # be run in three contexts, using the fixtures from those
+    # contexts. The fixtures differ in that they use servers
+    # in each of the three states.
+
     @pytest.fixture
     def rpc(mocker):
         return mocker.MagicMock()
@@ -92,6 +98,11 @@ def a_server():
 
     def describe_tick():
         def describe_state_machine():
+            # These tests, and a few other groups of tests in this file, are
+            # very similar. In production code you'd want to DRY them.
+            # I prefer not to DRY tests past the point where the code readibly
+            # states the intention of the test, so that they can also function
+            # as documentation of a sort.
             def apply_state_machine_to_an_unprocessed_committed_input(server, initial_log):
                 server.commit_index = 2
                 server.last_applied = 1
