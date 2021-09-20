@@ -328,6 +328,8 @@ class Server:
                 self.state_machine.apply(self.log[next_applied_index][1])
                 self.last_applied = next_applied_index
 
+        # Not a switch statement or a dict lookup, bc we want to
+        # fall through and potentally do two roles' work in a single tick
         if self.role == Role.FOLLOWER:
             self.follower_tick()
 
@@ -341,10 +343,9 @@ class Server:
             self.handle_rpc_message(self.inbox[0][0], self.inbox[0][1])
             self.inbox = self.inbox[1:]
 
-        now = self.timer()
         message_ids = list(self.awaiting_reply.keys()) # dict will be modified in loop; play it safe
         for message_id in message_ids:
-            if self.awaiting_reply[message_id]["response_deadline"] < now:
+            if self.awaiting_reply[message_id]["response_deadline"] < self.timer():
                 self.send_rpc_request(
                     message_id=message_id,
                     **self.awaiting_reply[message_id]["request"])
