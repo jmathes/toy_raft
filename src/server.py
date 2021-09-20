@@ -209,27 +209,19 @@ class Server:
                 del self.awaiting_reply[message_id]
 
     def handle_rpc_request(self, message_id, origin, term, procedure, args, kwargs):
-        if term < self.current_term:
-            self.rpc(
-                origin,
-                {
-                    "method": "response",
-                    "message_id": message_id,
-                    "term": self.current_term,
-                    "response": False,
-                }
-            )
-        else:
-            success = False if (self.role == Role.LEADER) else procedure(*args, **kwargs)
-            self.rpc(
-                origin,
-                {
-                    "method": "response",
-                    "message_id": message_id,
-                    "term": self.current_term,
-                    "response": success,
-                }
-            )
+        self.rpc(
+            origin,
+            {
+                "method": "response",
+                "message_id": message_id,
+                "term": self.current_term,
+                "response": (
+                    term >= self.current_term
+                    and self.role != Role.LEADER
+                    and procedure(*args, **kwargs)
+                ),
+            }
+        )
 
     def handle_rpc_response(self, original_request, term, response):
         if term > self.current_term:
